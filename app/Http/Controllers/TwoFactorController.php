@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class TwoFactorController extends Controller
 {
     /* Show 2FA Page */
     public function show(Request $request)
     {
-        $user = \App\Models\User::find(session('2fa_user_id'));
+        $user = User::find(session('2fa_user_id'));
 
         if (!$user) {
             return redirect('/login');
@@ -56,7 +57,7 @@ class TwoFactorController extends Controller
             'code' => 'required'
         ]);
 
-        $user = \App\Models\User::find(session('2fa_user_id'));
+        $user = User::find(session('2fa_user_id'));
 
         if ($user && $user->confirmTwoFactorAuth($request->code)) {
 
@@ -70,5 +71,32 @@ class TwoFactorController extends Controller
         return back()->withErrors([
             'code' => 'Invalid OTP'
         ]);
+    }
+
+    /* Dashboard */
+    public function dashboard(Request $request)
+    {
+        $search = $request->search;
+
+        $users = User::when($search, function ($query) use ($search) {
+            $query->where('name', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%");
+        })->oldest()->paginate(5);
+
+        $totalUsers = User::count();
+
+        return view('dashboard', compact(
+            'users',
+            'search',
+            'totalUsers'
+        ));
+    }
+
+    /* Delete User */
+    public function destroy(User $user)
+    {
+        $user->delete();
+
+        return back()->with('success', 'User deleted successfully');
     }
 }
