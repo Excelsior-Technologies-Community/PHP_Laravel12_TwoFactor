@@ -660,3 +660,7 @@ PHP_Laravel12_TwoFactor/
 
 Your PHP_Laravel12_TwoFactor Project is now ready!
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> development

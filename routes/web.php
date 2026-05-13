@@ -16,14 +16,19 @@ Route::get('/2fa', [TwoFactorController::class, 'show']);
 Route::post('/2fa/verify', [TwoFactorController::class, 'verify']);
 
 /* Dashboard */
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware('auth');
+Route::get('/dashboard', [TwoFactorController::class, 'dashboard'])
+    ->middleware('auth');
+
+/* Delete */
+Route::delete('/users/{user}', [TwoFactorController::class, 'destroy'])
+    ->middleware('auth');
 
 /* Logout */
 Route::post('/logout', function () {
     auth()->logout();
+
     request()->session()->invalidate();
+
     request()->session()->regenerateToken();
 
     return redirect('/login');
@@ -31,5 +36,5 @@ Route::post('/logout', function () {
 
 /* Home */
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/login');
 });
