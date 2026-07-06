@@ -1,40 +1,16 @@
 <?php
 
-use App\Http\Controllers\TwoFactorController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TwoFactorController;
 
-/* Login */
-Route::get('/login', function () {
-    return view('auth.login');
-})->name('login');
-
-Route::post('/login', [TwoFactorController::class, 'login']);
-
-/* 2FA */
-Route::get('/2fa', [TwoFactorController::class, 'show']);
-
-Route::post('/2fa/verify', [TwoFactorController::class, 'verify']);
-
-/* Dashboard */
-Route::get('/dashboard', [TwoFactorController::class, 'dashboard'])
-    ->middleware('auth');
-
-/* Delete */
-Route::delete('/users/{user}', [TwoFactorController::class, 'destroy'])
-    ->middleware('auth');
-
-/* Logout */
-Route::post('/logout', function () {
-    auth()->logout();
-
-    request()->session()->invalidate();
-
-    request()->session()->regenerateToken();
-
-    return redirect('/login');
-})->name('logout');
-
-/* Home */
 Route::get('/', function () {
-    return redirect('/login');
+    return redirect()->route('login');
 });
+
+Route::get('/login', [TwoFactorController::class, 'showLogin'])->name('login');
+Route::post('/login', [TwoFactorController::class, 'login']);
+Route::get('/2fa/verify', [TwoFactorController::class, 'showNotice'])->name('2fa.notice');
+Route::post('/2fa/verify', [TwoFactorController::class, 'verify'])->name('2fa.verify');
+Route::get('/2fa/recovery-codes/download', [TwoFactorController::class, 'downloadRecoveryCodes'])->name('2fa.recovery.download');
+Route::get('/dashboard', [TwoFactorController::class, 'dashboard'])->name('dashboard')->middleware('auth');
+Route::post('/logout', [TwoFactorController::class, 'logout'])->name('logout');
